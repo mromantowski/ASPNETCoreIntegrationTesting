@@ -8,20 +8,20 @@ using ProductionService.Model;
 
 namespace ProductionService
 {
-    public class Startup
+    public class StartupBase
     {
-        public Startup(IConfiguration configuration)
+        public StartupBase(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
 
-        public void ConfigureServices(IServiceCollection services)
+        public virtual void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
             services.AddMediatR(typeof(Startup));
-            services.AddProductionServiceModel();
+            services.AddServiceActions();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -41,6 +41,20 @@ namespace ProductionService
             {
                 endpoints.MapControllers();
             });
+        }
+    }
+
+    public class Startup : StartupBase
+    {
+        public Startup(IConfiguration configuration) : base(configuration)
+        {
+        }
+
+        public override void ConfigureServices(IServiceCollection services)
+        {
+            base.ConfigureServices(services);
+
+            services.AddCuts(Configuration["Paths:Cuts"]);
         }
     }
 }

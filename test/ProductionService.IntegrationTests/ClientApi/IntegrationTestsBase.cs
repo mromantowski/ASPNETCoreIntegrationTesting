@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using ProductionService.Client;
+using ProductionService.Model;
 using System;
+using System.IO;
+using System.Reflection;
 
 namespace ProductionService.IntegrationTests
 {
@@ -16,11 +19,15 @@ namespace ProductionService.IntegrationTests
 
         public IntegrationTestsBase()
         {
+            var basePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var testCutsPath = Path.Combine(basePath, "Files", "Cuts");
+
             host = Host.CreateDefaultBuilder()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder
-                        .UseStartup<Startup>()
+                        .UseStartup<StartupBase>()
+                        .ConfigureServices(s => s.AddCuts(testCutsPath))
                         .UseUrls(TestServerUrl);
                 })
                 .Build();

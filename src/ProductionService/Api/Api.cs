@@ -13,5 +13,11 @@ namespace TestApp1.Controllers
         {
             return await mediator.Send(request);
         }
+
+        [HttpGet("api/cuts/{cutId}")]
+        public async Task<GetCutTaskDetails.Response> Get([FromServices] IMediator mediator, string cutId)
+        {
+            return await mediator.Send(new GetCutTaskDetails.Request { TaskId = cutId });
+        }
     }
 }

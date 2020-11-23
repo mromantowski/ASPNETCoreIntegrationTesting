@@ -26,4 +26,13 @@
     <ProjectReference Include="..\..\src\ProductionService\ProductionService.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Files\Cuts\CT-2235.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Files\Cuts\CT-2234.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

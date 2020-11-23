@@ -2,7 +2,6 @@
 using RestSharp.Serializers.NewtonsoftJson;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,6 +29,12 @@ namespace ProductionService.Client
             
             return await GetAsync<GetActionsResponse>("/api/actions", cancellationToken, queryParameters);
         }
+
+        public async Task<GetCutTaskDetailsResponse> GetCutTaskDetails(string taskId)
+            => await GetCutTaskDetails(taskId, CancellationToken.None);
+
+        public async Task<GetCutTaskDetailsResponse> GetCutTaskDetails(string taskId, CancellationToken cancellationToken)
+            => await GetAsync<GetCutTaskDetailsResponse>($"api/cuts/{taskId}", cancellationToken);
 
         private async Task<TResponse> GetAsync<TResponse>(string path, CancellationToken cancellationToken, IDictionary<string, string> queryParameters = null) where TResponse : Response, new()
         {

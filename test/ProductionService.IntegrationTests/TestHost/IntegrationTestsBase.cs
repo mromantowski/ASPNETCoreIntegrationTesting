@@ -4,9 +4,11 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web;
+using ProductionService.Model;
 
 namespace ProductionService.IntegrationTests.TestHost
 {
@@ -20,9 +22,13 @@ namespace ProductionService.IntegrationTests.TestHost
 
         public IntegrationTestsBase()
         {
+            var basePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var testCutsPath = Path.Combine(basePath, "Files", "Cuts");
+
             testServer = new TestServer(
                 new WebHostBuilder()
-                .UseStartup<Startup>());
+                .UseStartup<StartupBase>()
+                .ConfigureServices((c,s) => s.AddCuts(testCutsPath)));
 
             client = testServer.CreateClient();
 
@@ -30,7 +36,7 @@ namespace ProductionService.IntegrationTests.TestHost
             jsonOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         }
 
-        protected async Task<TResponse> GetAsync<TResponse>(string path, object query)
+        protected async Task<TResponse> GetAsync<TResponse>(string path, object query = null)
         {
             var response = await client.GetAsync(BuildUri(client.BaseAddress, path, CreateQuery(query)));
             Stream responseStream = null;
@@ -60,6 +66,11 @@ namespace ProductionService.IntegrationTests.TestHost
 
         private string CreateQuery(object o)
         {
+            if (o == null)
+            {
+                return string.Empty;
+            }
+
             var parameters = o
                 .GetType()
                 .GetProperties()
