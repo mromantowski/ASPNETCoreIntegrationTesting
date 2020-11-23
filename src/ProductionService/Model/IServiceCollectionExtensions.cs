@@ -11,9 +11,10 @@ namespace ProductionService.Model
             services.AddAllImplementing<IServiceActionProvider>(typeof(IServiceActionProvider));
         }
 
-        public static void AddCuts(this IServiceCollection services, string cutsPath)
+        public static void AddCuts(this IServiceCollection services, string sourceCutsPath, string completedCutsPath)
         {
-            services.AddTransient<ICutTaskReader, CutTaskReader>((s) => new CutTaskReader(cutsPath));
+            services.AddTransient<ICutTaskReader, CutTaskReader>((s) => new CutTaskReader(sourceCutsPath));
+            services.AddTransient<ICutTaskManager, CutTaskManager>((s) => new CutTaskManager(sourceCutsPath, completedCutsPath));
         }
     }
 }

@@ -54,7 +54,7 @@ namespace ProductionService
         {
             base.ConfigureServices(services);
 
-            services.AddCuts(Configuration["Paths:Cuts"]);
+            services.AddCuts(Configuration["Paths:Cuts"], Configuration["Paths:CompletedCuts"]);
         }
     }
 }

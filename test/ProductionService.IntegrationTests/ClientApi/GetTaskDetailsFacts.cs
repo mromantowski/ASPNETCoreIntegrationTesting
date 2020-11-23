@@ -20,8 +20,6 @@ namespace ProductionService.IntegrationTests.ClientApi
         }
 
         [Theory]
-        [InlineData(null)]
-        [InlineData("")]
         [InlineData("1234")]
         [InlineData("12345")]
         public async Task GetTaskDetails_ForInValidTaskId_ReturnsFailure(string taskId)

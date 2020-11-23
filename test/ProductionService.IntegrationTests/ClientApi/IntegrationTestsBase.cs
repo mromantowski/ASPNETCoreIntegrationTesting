@@ -15,19 +15,27 @@ namespace ProductionService.IntegrationTests
 
         protected IProductionServiceClient ClientApi { get; }
 
+        private readonly string basePath;
+        protected string SourceCutsPath { get; }
+        protected string CompletedCutsPath { get; }
+
         private bool disposed = false;
 
         public IntegrationTestsBase()
         {
-            var basePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var testCutsPath = Path.Combine(basePath, "Files", "Cuts");
+            basePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
 
-            host = Host.CreateDefaultBuilder()
+            SourceCutsPath = Path.Combine(basePath, "Source");
+            CompletedCutsPath = Path.Combine(basePath, "Completed");
+
+            InitTestDirectories();
+
+             host = Host.CreateDefaultBuilder()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder
                         .UseStartup<StartupBase>()
-                        .ConfigureServices(s => s.AddCuts(testCutsPath))
+                        .ConfigureServices(s => s.AddCuts(SourceCutsPath, CompletedCutsPath))
                         .UseUrls(TestServerUrl);
                 })
                 .Build();
@@ -35,6 +43,21 @@ namespace ProductionService.IntegrationTests
             host.StartAsync();
 
             ClientApi = new ProductionServiceClient(TestServerUrl);
+        }
+
+        private void InitTestDirectories()
+        {
+            var assemblyBasePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var orginalCutsPath = Path.Combine(assemblyBasePath, "Files", "Cuts");
+
+            Directory.CreateDirectory(SourceCutsPath);
+
+            foreach (var file in Directory.GetFiles(orginalCutsPath))
+            {
+                File.Copy(file, Path.Combine(SourceCutsPath, Path.GetFileName(file)));
+            }
+
+            Directory.CreateDirectory(CompletedCutsPath);
         }
 
         public void Dispose()
@@ -53,6 +76,7 @@ namespace ProductionService.IntegrationTests
             if (disposing)
             {
                 host.Dispose();
+                Directory.Delete(basePath, true);
             }
 
             disposed = true;

@@ -9,6 +9,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web;
 using ProductionService.Model;
+using System.Text;
+using System.Net.Http.Headers;
 
 namespace ProductionService.IntegrationTests.TestHost
 {
@@ -18,22 +20,45 @@ namespace ProductionService.IntegrationTests.TestHost
         private readonly HttpClient client;
         private readonly JsonSerializerOptions jsonOptions;
 
+        private readonly string basePath;
+        protected string SourceCutsPath { get; }
+        protected string CompletedCutsPath { get; }
+
         private bool disposed = false;
 
         public IntegrationTestsBase()
         {
-            var basePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var testCutsPath = Path.Combine(basePath, "Files", "Cuts");
+            basePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+
+            SourceCutsPath = Path.Combine(basePath, "Source");
+            CompletedCutsPath = Path.Combine(basePath, "Completed");
+
+            InitTestDirectories();
 
             testServer = new TestServer(
                 new WebHostBuilder()
                 .UseStartup<StartupBase>()
-                .ConfigureServices((c,s) => s.AddCuts(testCutsPath)));
+                .ConfigureServices((c,s) => s.AddCuts(SourceCutsPath, CompletedCutsPath)));
 
             client = testServer.CreateClient();
 
             jsonOptions = new JsonSerializerOptions();
             jsonOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        }
+
+        private void InitTestDirectories()
+        {
+            var assemblyBasePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var orginalCutsPath = Path.Combine(assemblyBasePath, "Files", "Cuts");
+
+            Directory.CreateDirectory(SourceCutsPath);
+
+            foreach (var file in Directory.GetFiles(orginalCutsPath))
+            {
+                File.Copy(file, Path.Combine(SourceCutsPath, Path.GetFileName(file)));
+            }
+
+            Directory.CreateDirectory(CompletedCutsPath);
         }
 
         protected async Task<TResponse> GetAsync<TResponse>(string path, object query = null)
@@ -50,7 +75,27 @@ namespace ProductionService.IntegrationTests.TestHost
                 responseStream?.Dispose();
             }
         }
-        
+
+        protected async Task<TResponse> PostAsync<TResponse>(string path, object request)
+        {
+            var content = JsonSerializer.Serialize(request, jsonOptions);
+            var buffer = Encoding.UTF8.GetBytes(content);
+            var byteContent = new ByteArrayContent(buffer);
+            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+            var response = await client.PostAsync(BuildUri(client.BaseAddress, path), byteContent);
+            Stream responseStream = null;
+            try
+            {
+                responseStream = await response.Content.ReadAsStreamAsync();
+                return await JsonSerializer.DeserializeAsync<TResponse>(responseStream, jsonOptions);
+            }
+            finally
+            {
+                responseStream?.Dispose();
+            }
+        }
+
         private Uri BuildUri(Uri baseAddress, string path, string query = null)
         {
             var builder = new UriBuilder(baseAddress);
@@ -99,6 +144,7 @@ namespace ProductionService.IntegrationTests.TestHost
             {
                 testServer.Dispose();
                 client.Dispose();
+                Directory.Delete(basePath, true);
             }
 
             disposed = true;
