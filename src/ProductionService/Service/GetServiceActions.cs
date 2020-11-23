@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using ProductionService.Model;
+using ProductionService.Model.ServiceActions;
 using System;
 using System.Collections.Generic;
 using System.Linq;

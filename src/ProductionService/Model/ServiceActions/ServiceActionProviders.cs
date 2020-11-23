@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
-namespace ProductionService.Model
+namespace ProductionService.Model.ServiceActions
 {
     public class Saw1ActionProvider : ServiceActionProviderBase
     {

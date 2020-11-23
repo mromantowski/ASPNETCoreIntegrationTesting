@@ -1,9 +1,9 @@
-using ProductionService.Model;
+using ProductionService.Model.ServiceActions;
 using Shouldly;
 using System;
 using Xunit;
 
-namespace ProductionService.UnitTests.Model
+namespace ProductionService.UnitTests.Model.ServiceActions
 {
     [Trait("Category", "Unit")]
     public class Saw1ActionProviderFActs

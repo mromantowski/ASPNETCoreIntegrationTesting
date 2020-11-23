@@ -2,8 +2,6 @@
 using Microsoft.Extensions.Hosting;
 using ProductionService.Client;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ProductionService.IntegrationTests
 {
