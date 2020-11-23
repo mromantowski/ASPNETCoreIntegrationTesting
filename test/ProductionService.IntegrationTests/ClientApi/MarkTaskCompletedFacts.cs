@@ -31,14 +31,14 @@ namespace ProductionService.IntegrationTests.ClientApi
         }
 
         [Theory]
-        [InlineData("2234")]
-        [InlineData("2235")]
-        public async Task MarkTaskCompleted_ForValidTaskId_MovesTheFile(string taskId)
+        [InlineData("2234", "CT-2234.txt")]
+        [InlineData("2235", "CT-2235.txt")]
+        public async Task MarkTaskCompleted_ForValidTaskId_MovesTheFile(string taskId, string filename)
         {
             await ClientApi.MarkTaskCompleted(taskId);
 
-            File.Exists(Path.Combine(SourceCutsPath, $"CT-{taskId}.txt")).ShouldBeFalse();
-            File.Exists(Path.Combine(CompletedCutsPath, $"CT-{taskId}.txt")).ShouldBeTrue();
+            File.Exists(Path.Combine(SourceCutsPath, filename)).ShouldBeFalse();
+            File.Exists(Path.Combine(CompletedCutsPath, filename)).ShouldBeTrue();
         }
     }
 }

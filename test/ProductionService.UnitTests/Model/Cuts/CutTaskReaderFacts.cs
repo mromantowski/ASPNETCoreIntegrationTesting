@@ -20,6 +20,8 @@ namespace ProductionService.UnitTests.Model.Cuts
             reader = new CutTaskReader(testCutsPath);
         }
 
+        // MR: taka funkcjonalność powinna mieć znacznie większe zestawy testowe,
+        // szczególnie uwzględniające warunki brzegowe (dopuszczalne w specyfikacji danych wejściowych)
         [Fact]
         public async void Read_WhenValidFile_ReturnsValidCutTask()
         {
