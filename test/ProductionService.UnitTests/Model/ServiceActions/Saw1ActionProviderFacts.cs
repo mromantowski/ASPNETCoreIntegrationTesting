@@ -15,8 +15,7 @@ namespace ProductionService.UnitTests.Model.ServiceActions
         {
             var actions = provider.GetActions(Machine.Saw1, DateTime.Now);
 
-            actions.ShouldContain("Opró¿nij pojemnik na odpady");
-            actions.ShouldContain("SprawdŸ stan ostrza");
+            actions.ShouldNotBeEmpty();
         }
 
         [Theory]
