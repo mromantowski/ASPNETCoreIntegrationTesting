@@ -25,5 +25,11 @@ namespace TestApp1.Controllers
         {
             return await mediator.Send(request);
         }
+
+        [HttpPost("api/report")]
+        public async Task<ResponseBase> RequireRaportGeneration([FromServices] IMediator mediator, [FromBody] RequireRaportGeneration.Request request)
+        {
+            return await mediator.Send(request);
+        }
     }
 }

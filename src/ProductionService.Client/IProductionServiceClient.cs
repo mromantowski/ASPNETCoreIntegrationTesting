@@ -12,5 +12,7 @@ namespace ProductionService.Client
         Task<GetCutTaskDetailsResponse> GetCutTaskDetails(string taskId, CancellationToken cancellationToken);
         Task<Response> MarkTaskCompleted(string taskId);
         Task<Response> MarkTaskCompleted(string taskId, CancellationToken cancellationToken);
+        Task<Response> RequireReportGeneration();
+        Task<Response> RequireReportGeneration(CancellationToken cancellationToken);
     }
 }

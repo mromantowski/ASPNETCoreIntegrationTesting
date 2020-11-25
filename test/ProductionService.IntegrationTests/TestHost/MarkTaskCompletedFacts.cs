@@ -6,7 +6,7 @@ using Xunit;
 namespace ProductionService.IntegrationTests.TestHost
 {
     [Trait("Category", "Integration")]
-    public class MarkTaskCompletedFacts : IntegrationTestsBase
+    public class MarkTaskCompletedFacts : IntegrationTestsWithCuts
     {
         public class Response
         {

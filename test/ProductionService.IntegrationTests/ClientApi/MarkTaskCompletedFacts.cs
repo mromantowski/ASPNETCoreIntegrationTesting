@@ -6,7 +6,7 @@ using Xunit;
 namespace ProductionService.IntegrationTests.ClientApi
 {
     [Trait("Category", "Integration")]
-    public class MarkTaskCompletedFacts : IntegrationTestsBase
+    public class MarkTaskCompletedFacts : IntegrationTestsWithCuts
     {
         [Theory]
         [InlineData("2234")]

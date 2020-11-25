@@ -42,6 +42,12 @@ namespace ProductionService.Client
         public async Task<Response> MarkTaskCompleted(string taskId, CancellationToken cancellationToken)
             => await PostAsync<Response>("/api/cuts/completed", new { TaskId = taskId }, cancellationToken);
 
+        public async Task<Response> RequireReportGeneration()
+            => await RequireReportGeneration(CancellationToken.None);
+
+        public async Task<Response> RequireReportGeneration(CancellationToken cancellationToken)
+            => await PostAsync<Response>("/api/report", new { }, cancellationToken);
+
         private async Task<TResponse> GetAsync<TResponse>(string path, CancellationToken cancellationToken, IDictionary<string, string> queryParameters = null) where TResponse : Response, new()
         {
             try

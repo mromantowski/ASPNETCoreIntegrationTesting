@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ProductionService.Model;
+using System;
 
 namespace ProductionService
 {
@@ -54,7 +55,13 @@ namespace ProductionService
         {
             base.ConfigureServices(services);
 
-            services.AddCuts(Configuration["Paths:Cuts"], Configuration["Paths:CompletedCuts"]);
+            services.AddCuts(o =>
+            {
+                o.SourceCutsPath = Configuration["Model:Cuts"];
+                o.CompletedCutsPath = Configuration["Model:CompletedCuts"];
+            });
+
+            services.AddReports(o => o.GenerationInterval = Configuration.GetValue<TimeSpan>("Model:ReportInterval"));
         }
     }
 }

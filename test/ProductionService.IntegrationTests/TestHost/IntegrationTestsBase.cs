@@ -1,16 +1,15 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Reflection;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web;
-using ProductionService.Model;
-using System.Text;
-using System.Net.Http.Headers;
 
 namespace ProductionService.IntegrationTests.TestHost
 {
@@ -20,25 +19,14 @@ namespace ProductionService.IntegrationTests.TestHost
         private readonly HttpClient client;
         private readonly JsonSerializerOptions jsonOptions;
 
-        private readonly string basePath;
-        protected string SourceCutsPath { get; }
-        protected string CompletedCutsPath { get; }
-
         private bool disposed = false;
 
         public IntegrationTestsBase()
         {
-            basePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-
-            SourceCutsPath = Path.Combine(basePath, "Source");
-            CompletedCutsPath = Path.Combine(basePath, "Completed");
-
-            InitTestDirectories();
-
             testServer = new TestServer(
                 new WebHostBuilder()
                 .UseStartup<StartupBase>()
-                .ConfigureServices((c,s) => s.AddCuts(SourceCutsPath, CompletedCutsPath)));
+                .ConfigureServices(ConfigureServices));
 
             client = testServer.CreateClient();
 
@@ -46,20 +34,7 @@ namespace ProductionService.IntegrationTests.TestHost
             jsonOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         }
 
-        private void InitTestDirectories()
-        {
-            var assemblyBasePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var orginalCutsPath = Path.Combine(assemblyBasePath, "Files", "Cuts");
-
-            Directory.CreateDirectory(SourceCutsPath);
-
-            foreach (var file in Directory.GetFiles(orginalCutsPath))
-            {
-                File.Copy(file, Path.Combine(SourceCutsPath, Path.GetFileName(file)));
-            }
-
-            Directory.CreateDirectory(CompletedCutsPath);
-        }
+        protected virtual void ConfigureServices(WebHostBuilderContext context, IServiceCollection services) { }
 
         protected async Task<TResponse> GetAsync<TResponse>(string path, object query = null)
         {
@@ -133,7 +108,7 @@ namespace ProductionService.IntegrationTests.TestHost
             GC.SuppressFinalize(this);
         }
 
-        protected void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (disposed)
             {
@@ -144,7 +119,6 @@ namespace ProductionService.IntegrationTests.TestHost
             {
                 testServer.Dispose();
                 client.Dispose();
-                Directory.Delete(basePath, true);
             }
 
             disposed = true;
